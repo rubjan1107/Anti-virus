@@ -58,6 +58,18 @@ An antivirus scanner application built using Python and Tkinter. This tool enabl
 `mini_project.py`: Main application script.
 `malware_hashes.txt`: File containing known malware hashes (update as needed).
 `rules.yar`: YARA rules for malware detection.
+
+## Application Screenshots
+
+### Main Interface
+![Main Interface](screenshots/app_interface.png "Main Interface of the Application")
+
+### File Scanning Feature
+![File Scanning](screenshots/file_scanning.png "File Scanning in Action")
+
+### Real-Time Monitoring
+![Real-Time Monitoring](screenshots/real_time_monitoring.png "Real-Time Scanning Interface")
+
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
