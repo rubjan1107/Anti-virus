@@ -62,13 +62,14 @@ An antivirus scanner application built using Python and Tkinter. This tool enabl
 ## Application Screenshots
 
 ### Main Interface
-![Main Interface](screenshots/app_interface.png "Main Interface of the Application")
+![Main Interface](screeenshots/Screenshot(3).png "Main Interface of the Application")
 
 ### File Scanning Feature
-![File Scanning](screenshots/file_scanning.png "File Scanning in Action")
+![File Scanning](screeenshots/Screenshot(4).png "File Scanning in Action")
+![file selevting](screeenshots/Screenshot(5).png "File Scanning in Action")
+![infected file list](screeenshots/Screenshot(6).png "File Scanning in Action")
 
-### Real-Time Monitoring
-![Real-Time Monitoring](screenshots/real_time_monitoring.png "Real-Time Scanning Interface")
+
 
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
