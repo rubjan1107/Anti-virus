@@ -62,12 +62,12 @@ An antivirus scanner application built using Python and Tkinter. This tool enabl
 ## Application Screenshots
 
 ### Main Interface
-![Main Interface](screeenshots/Screenshot(3).png "Main Interface of the Application")
+![Main Interface](screeenshots/main.png "Main Interface of the Application")
 
 ### File Scanning Feature
-![File Scanning](screeenshots/Screenshot(4).png "File Scanning in Action")
-![file selevting](screeenshots/Screenshot(5).png "File Scanning in Action")
-![infected file list](screeenshots/Screenshot(6).png "File Scanning in Action")
+![File Scanning](screeenshots/second.png "File Scanning in Action")
+![file selevting](screeenshots/third.png "File Scanning in Action")
+![infected file list](screeenshots/Screenshot.png "File Scanning in Action")
 
 
 
