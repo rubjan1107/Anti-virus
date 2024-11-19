@@ -27,5 +27,47 @@ An antivirus scanner application built using Python and Tkinter. This tool enabl
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/antivirus-scanner.git
+   git clone https://github.com/rubjan1107/antivirus-scanner.git
    cd antivirus-scanner
+2. Install the required dependencies:
+   ```bash
+    pip install -r requirements.txt
+3. (Optional) Install YARA:
+   ```bash
+    pip install yara-python
+4.Ensure the following files are available:
+
+  `malware_hashes.txt`: Contains known malware hashes in the format 
+  `hash_type`:hash_value.
+  `rules.yar`: YARA rules for malware detection.
+
+## Usage
+1.Run the application:
+   
+    python mini_project.py
+2.Use the GUI to:
+
+ - Select and scan files or directories.
+ - View scan results.
+ - Quarantine or delete infected files.
+ - Start real-time scanning for directory changes.
+ - Update malware signatures.
+
+## File Structure
+
+`mini_project.py`: Main application script.
+`malware_hashes.txt`: File containing known malware hashes (update as needed).
+`rules.yar`: YARA rules for malware detection.
+## License
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Disclaimer
+This project is for educational purposes only. Use it responsibly and ensure you comply with local laws when analyzing files for malware.
+
+
+
+
+
+ 
+
+
