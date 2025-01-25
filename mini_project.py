@@ -14,6 +14,7 @@ from watchdog.events import FileSystemEventHandler
 from plyer import notification
 
 
+
 class AntivirusScanner:
     def __init__(self, root):
         self.known_hashes = {}  # Known malware hashes (loaded/updated dynamically)
@@ -205,54 +206,69 @@ class AntivirusScanner:
         except OSError as e:
             self.result_text.insert(tk.END, f"Error reading file: {e}\n")
             return None
-
     def scan_file(self, file_path):
-        if not os.path.isfile(file_path):
-            self.result_text.insert(tk.END, f"{file_path} is not a valid file.\n")
-            return
-        try:
-            virus_found = False
-            heuristic_alert = False
-            severity_score = 0
+     if not os.path.isfile(file_path):
+        self.result_text.insert(tk.END, f"{file_path} is not a valid file.\n")
+        return
+     try:
+        virus_found = False
+        heuristic_alert = False
+        severity_score = 0
 
-            # Compute file hash
-            file_md5 = self.compute_file_hash(file_path, "md5")
-            file_sha256 = self.compute_file_hash(file_path, "sha256")
+        # Compute file hash
+        file_md5 = self.compute_file_hash(file_path, "md5")
+        file_sha256 = self.compute_file_hash(file_path, "sha256")
 
-            if file_md5 in self.known_hashes.values():
-                self.result_text.insert(tk.END, f"Known virus found (MD5 match) in {file_path}\n")
-                virus_found = True
-                severity_score += 50
-            elif file_sha256 in self.known_hashes.values():
-                self.result_text.insert(tk.END, f"Known virus found (SHA-256 match) in {file_path}\n")
-                virus_found = True
-                severity_score += 75
+        if file_md5 in self.known_hashes.values():
+            self.result_text.insert(tk.END, f"Known virus found (MD5 match) in {file_path}\n")
+            virus_found = True
+            severity_score += 50
+        elif file_sha256 in self.known_hashes.values():
+            self.result_text.insert(tk.END, f"Known virus found (SHA-256 match) in {file_path}\n")
+            virus_found = True
+            severity_score += 75
 
-            if self.yara_rules:
+        if self.yara_rules:
+            try:
                 matches = self.yara_rules.match(file_path)
                 if matches:
                     self.result_text.insert(tk.END, f"YARA match found in {file_path}: {matches}\n")
                     virus_found = True
                     severity_score += 75
+            except yara.Error as e:
+                self.result_text.insert(tk.END, f"Error processing YARA rules for {file_path}: {e}\n")
+                logging.error(f"Error processing YARA rules for {file_path}: {e}")
+                return  # Skip this file if YARA cannot process it
 
-            with open(file_path, "rb") as f:
-                content = f.read()
-                for pattern in self.suspicious_patterns:
-                    if re.search(pattern, content):
-                        self.result_text.insert(tk.END, f"Suspicious pattern {pattern} found in {file_path}\n")
-                        heuristic_alert = True
-                        severity_score += 50
+        with open(file_path, "rb") as f:
+            content = f.read()
+            for pattern in self.suspicious_patterns:
+                if re.search(pattern, content):
+                    self.result_text.insert(tk.END, f"Suspicious pattern {pattern} found in {file_path}\n")
+                    heuristic_alert = True
+                    severity_score += 50
 
-            if virus_found or heuristic_alert:
-                self.display_heuristic_analysis(file_path, severity_score)
-                self.infected_files.append(file_path)
-                logging.info(f"Infected file: {file_path}, Severity: {severity_score}")
-            else:
-                self.result_text.insert(tk.END, f"No issues detected in {file_path}\n")
-                logging.info(f"File scanned: {file_path} - No issues found.")
-                
-        except OSError as e:
-            self.result_text.insert(tk.END, f"Error scanning file: {e}\n")
+        if virus_found or heuristic_alert:
+            self.display_heuristic_analysis(file_path, severity_score)
+            self.infected_files.append(file_path)
+            logging.info(f"Infected file: {file_path}, Severity: {severity_score}")
+        else:
+            self.result_text.insert(tk.END, f"No issues detected in {file_path}\n")
+            logging.info(f"File scanned: {file_path} - No issues found.")
+            
+     except OSError as e:
+        self.result_text.insert(tk.END, f"Error scanning file: {e}\n")
+        logging.error(f"Error scanning file {file_path}: {e}")
+    
+    
+
+
+    
+
+
+
+    
+
 
     def scan_directory_concurrent(self, directory_path):
         files = [os.path.join(root, file) for root, _, filenames in os.walk(directory_path) for file in filenames]
@@ -379,11 +395,12 @@ class AntivirusScanner:
             var.set(0)
 
     def start_real_time_scan(self):
+        self.clear_results()
         if hasattr(self, 'observer') and self.observer and self.observer.is_alive():
             self.result_text.insert(tk.END, "Real-time scanning is already running.\n")
             return
 
-        directories = ["C:/","D:/", "E:/"]
+        directories = ["D:/", "E:/"]
         self.result_text.insert(tk.END, f"Started real-time scanning for changes in {', '.join(directories)}.\n")
         notification.notify(
             title="Antivirus Scan",
