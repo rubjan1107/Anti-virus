@@ -11,6 +11,7 @@ import shutil
 import stat
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from plyer import notification
 
 
 class AntivirusScanner:
@@ -26,6 +27,7 @@ class AntivirusScanner:
         self.yara_rules = None
 
         self.setup_quarantine_directory()
+        
 
         logging.basicConfig(filename="scan_log.txt", level=logging.INFO, format="%(asctime)s - %(message)s")
 
@@ -38,6 +40,17 @@ class AntivirusScanner:
 
         # Load signatures after setting up the GUI
         self.load_signatures()  # Load signatures initially
+        self.start_real_time_scan()
+
+    def notify_user(self, message):
+    
+     notification.notify(
+        title="Antivirus Alert",
+        message=message,
+        timeout=10  # Duration the notification will appear
+     )
+     logging.info(f"Notification: {message}")
+
 
     def setup_quarantine_directory(self):
         if not os.path.exists(self.quarantine_directory):
@@ -114,11 +127,15 @@ class AntivirusScanner:
         update_button = tk.Button(frame, text="Update Signatures", command=self.update_signatures, bg="orange", fg="black")
         update_button.grid(row=0, column=5, padx=20)
 
-        real_time_button = tk.Button(frame, text="Start Real-Time Scan", command=self.start_real_time_scan, bg="purple", fg="white")
-        real_time_button.grid(row=0, column=6, padx=20)
+        
+
+        
+
+        stop_button = tk.Button(frame, text="Stop Real-Time Scan", command=self.stop_real_time_scan, bg="red", fg="white")
+        stop_button.grid(row=0, column=6, padx=20,pady=20)
 
         quit_button = tk.Button(frame, text="Quit", command=self.quit_app, bg="black", fg="white")
-        quit_button.grid(row=0, column=7, padx=20)
+        quit_button.grid(row=0, column=8, padx=20)
 
         self.result_text = tk.Text(self.root, height=20, width=120)
         self.result_text.pack(pady=20)
@@ -362,20 +379,36 @@ class AntivirusScanner:
             var.set(0)
 
     def start_real_time_scan(self):
-        if hasattr(self, 'observer') and self.observer.is_alive():
+        if hasattr(self, 'observer') and self.observer and self.observer.is_alive():
             self.result_text.insert(tk.END, "Real-time scanning is already running.\n")
             return
 
-        directory = filedialog.askdirectory()
-        if not directory:
-            self.result_text.insert(tk.END, "No directory selected for real-time scanning.\n")
-            return
-
-        self.result_text.insert(tk.END, f"Started real-time scanning for changes in {directory}.\n")
+        directories = ["C:/","D:/", "E:/"]
+        self.result_text.insert(tk.END, f"Started real-time scanning for changes in {', '.join(directories)}.\n")
+        notification.notify(
+            title="Antivirus Scan",
+            message="Real-time system scanning has started.",
+            timeout=10
+        )
         self.observer = Observer()
         event_handler = FileChangeHandler(self)
-        self.observer.schedule(event_handler, directory, recursive=True)
+
+        for directory in directories:
+            if os.path.exists(directory):
+                self.observer.schedule(event_handler, directory, recursive=True)
+            else:
+                self.result_text.insert(tk.END, f"Directory does not exist: {directory}\n")
+
         self.observer.start()
+
+    def stop_real_time_scan(self):
+        if hasattr(self, 'observer') and self.observer and self.observer.is_alive():
+            self.observer.stop()
+            self.observer.join()
+            self.result_text.insert(tk.END, "Real-time scanning stopped.\n")
+        else:
+            self.result_text.insert(tk.END, "No active real-time scanning to stop.\n")
+
 
     def update_signatures(self):
         yara_file_path = filedialog.askopenfilename(title="Select YARA Rules File", filetypes=[("YARA files", "*.yar")])
@@ -397,6 +430,8 @@ class AntivirusScanner:
 
 
 class FileChangeHandler(FileSystemEventHandler):
+    """Handler for real-time file change events."""
+
     def __init__(self, antivirus):
         self.antivirus = antivirus
 
@@ -404,11 +439,13 @@ class FileChangeHandler(FileSystemEventHandler):
         if not event.is_directory:
             self.antivirus.result_text.insert(tk.END, f"File created: {event.src_path}. Scanning...\n")
             self.antivirus.scan_file(event.src_path)
+            self.antivirus.notify_user(f"Malware detected at {event.src_path}")
 
     def on_modified(self, event):
         if not event.is_directory:
             self.antivirus.result_text.insert(tk.END, f"File modified: {event.src_path}. Scanning...\n")
             self.antivirus.scan_file(event.src_path)
+            self.antivirus.notify_user(f"Malware detected at {event.src_path}")
 
 
 # Run the application
